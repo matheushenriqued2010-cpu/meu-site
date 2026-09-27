@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#fff8fb">
+  <title>Uma pergunta para você ❤️</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      background: #fff8fb;
+      color: #4b3540;
+    }
+
+    body {
+      min-height: 100svh;
+      overflow-x: hidden;
+    }
+
+    .page {
+      min-height: 100svh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 34px 20px;
+      overflow: hidden;
+      background: #f8f2df url("fundo-flores.jpg") center center / cover fixed no-repeat;
+    }
+
+    /* Bordas decorativas */
+    .garden {
+      display: none;
+    }
+
+    .garden::before,
+    .garden::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      inset: 0;
+      background: transparent;
+    }
+
+    .leaf {
+      position: absolute;
+      width: 28px;
+      height: 12px;
+      background: #79ae70;
+      border-radius: 100% 0 100% 0;
+      transform: rotate(-35deg);
+      opacity: .7;
+    }
+
+    .leaf.l1 { left: 8px; top: 24%; }
+    .leaf.l2 { left: 55px; top: 48%; transform: rotate(25deg); }
+    .leaf.l3 { right: 10px; top: 33%; transform: rotate(-15deg); }
+    .leaf.l4 { right: 60px; top: 72%; transform: rotate(35deg); }
+
+    .card {
+      width: min(100%, 430px);
+      position: relative;
+      z-index: 3;
+      text-align: center;
+      padding: 24px 18px 28px;
+      border-radius: 30px;
+      background: rgba(255,255,255,.90);
+      border: 1px solid rgba(255, 235, 205, .9);
+      box-shadow: 0 18px 55px rgba(116, 74, 92, .13);
+      backdrop-filter: blur(8px);
+    }
+
+    .bear {
+      width: min(72vw, 270px);
+      max-height: 250px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 10px;
+      border-radius: 18px;
+    }
+
+    h1 {
+      margin: 4px 0 8px;
+      font-size: clamp(25px, 7vw, 34px);
+      line-height: 1.15;
+      color: #653f51;
+    }
+
+    .subtitle {
+      margin: 0 auto 22px;
+      max-width: 330px;
+      font-size: 16px;
+      line-height: 1.5;
+      color: #7b606b;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      position: relative;
+      min-height: 56px;
+    }
+
+    button {
+      border: 0;
+      min-width: 125px;
+      min-height: 52px;
+      padding: 12px 22px;
+      border-radius: 999px;
+      font-size: 17px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    button:active { transform: scale(.96); }
+
+    #yes {
+      color: white;
+      background: linear-gradient(135deg, #ef7597, #dc4f79);
+      box-shadow: 0 9px 20px rgba(220, 79, 121, .25);
+    }
+
+    #no {
+      color: #855f6d;
+      background: #fff;
+      border: 2px solid #f0c5d2;
+      box-shadow: 0 6px 16px rgba(130, 82, 101, .10);
+      position: relative;
+      z-index: 10;
+    }
+
+    .hint {
+      min-height: 22px;
+      margin-top: 13px;
+      color: #c15e7b;
+      font-size: 13px;
+    }
+
+    /* Segunda tela: envelope e carta */
+    .letter-screen {
+      display: none;
+      width: 100%;
+      min-height: 100svh;
+      align-items: center;
+      justify-content: center;
+      padding: 26px 14px;
+      position: relative;
+      z-index: 4;
+      background-color: #dfeee3;
+      background-image: url("fundo-carta-verde.png");
+      background-size: cover;
+      background-position: center top;
+      background-repeat: no-repeat;
+      overflow: hidden;
+    }
+
+    .letter-scene {
+      width: min(100%, 520px);
+      text-align: center;
+    }
+
+    .letter-title {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(22px, 6vw, 30px);
+      color: #35553c;
+      margin: 0 0 16px;
+      text-shadow: 0 1px 0 rgba(255,255,255,.7);
+    }
+
+    .envelope-wrap {
+      width: min(92vw, 390px);
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .envelope {
+      width: 100%;
+      aspect-ratio: 1.52 / 1;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid rgba(110, 90, 70, .18);
+      border-radius: 5px;
+      box-shadow:
+        0 20px 35px rgba(70, 55, 40, .20),
+        0 2px 5px rgba(70, 55, 40, .12);
+      transition: transform .45s ease, opacity .5s ease, box-shadow .45s ease;
+      transform: none;
+    }
+
+    .envelope::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background:
+        linear-gradient(145deg, transparent 49.7%, #f0f0ee 50% 50.4%, transparent 50.7%),
+        linear-gradient(215deg, transparent 49.7%, #f0f0ee 50% 50.4%, transparent 50.7%),
+        linear-gradient(180deg, #fafafa, #ededeb);
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+      pointer-events: none;
+    }
+
+    .envelope-flap {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 64%;
+      z-index: 7;
+      background: #fafafa;
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      transform-origin: top center;
+      transition: transform .8s cubic-bezier(.2,.8,.2,1);
+      box-shadow: 0 2px 5px rgba(80,70,60,.10);
+    }
+
+    .envelope-paper {
+      position: absolute;
+      left: 10%;
+      right: 10%;
+      bottom: 7%;
+      height: 72%;
+      z-index: 4;
+      background: #f4efe2;
+      border: 1px solid rgba(110,90,65,.16);
+      box-shadow: 0 2px 8px rgba(70,50,30,.12);
+      transform: translateY(38%);
+      transition: transform .85s cubic-bezier(.2,.8,.2,1);
+    }
+
+    .envelope-paper::before {
+      content: "";
+      position: absolute;
+      inset: 5%;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0 28px,
+        rgba(105, 91, 70, .12) 29px 30px
+      );
+    }
+
+    .seal {
+      position: absolute;
+      left: 50%;
+      top: 62%;
+      width: clamp(70px, 18vw, 94px);
+      height: clamp(70px, 18vw, 94px);
+      transform: translate(-50%, -50%);
+      z-index: 12;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 35% 30%, rgba(255,255,255,.20), transparent 17%),
+        radial-gradient(circle, #a51e2b 0 48%, #78121d 50% 66%, #4d0a12 68% 100%);
+      box-shadow:
+        inset 0 2px 5px rgba(255,255,255,.22),
+        inset 0 -5px 10px rgba(40,0,0,.45),
+        0 5px 9px rgba(50,20,10,.25);
+      transition: transform .45s ease, opacity .35s ease;
+    }
+
+    .seal::before {
+      content: "♥";
+      position: absolute;
+      inset: 14%;
+      border: 2px solid rgba(255,220,220,.18);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: rgba(255,220,220,.42);
+      font-size: 23px;
+      font-family: Georgia, serif;
+    }
+
+    .seal::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 8%;
+      right: 8%;
+      height: 3px;
+      background: #42070d;
+      transform: translateY(-50%) scaleX(0);
+      opacity: 0;
+    }
+
+    .seal-half {
+      position: absolute;
+      top: 62%;
+      width: 47px;
+      height: 94px;
+      margin-top: -47px;
+      z-index: 13;
+      opacity: 0;
+      pointer-events: none;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 35% 30%, rgba(255,255,255,.18), transparent 17%),
+        radial-gradient(circle, #a51e2b 0 48%, #78121d 50% 66%, #4d0a12 68% 100%);
+      transition: transform .65s cubic-bezier(.2,.8,.2,1), opacity .2s ease;
+    }
+
+    .seal-half.left { left: calc(50% - 47px); clip-path: inset(0 0 0 50%); }
+    .seal-half.right { right: calc(50% - 47px); clip-path: inset(0 50% 0 0); }
+
+    .envelope.opening .seal {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(.65);
+    }
+
+    .envelope.opening .seal-half {
+      opacity: 1;
+    }
+
+    .envelope.opening .seal-half.left {
+      transform: translateX(-34px) rotate(-12deg);
+    }
+
+    .envelope.opening .seal-half.right {
+      transform: translateX(34px) rotate(12deg);
+    }
+
+    .envelope.opening .envelope-flap {
+      transform: rotateX(180deg);
+    }
+
+    .envelope.opening .envelope-paper {
+      transform: translateY(-4%);
+    }
+
+    .envelope.opening {
+      box-shadow: 0 24px 40px rgba(70, 55, 40, .15);
+    }
+
+    .open-envelope-image {
+      display: none;
+      width: min(92vw, 390px);
+      aspect-ratio: 1152 / 2048;
+      object-fit: contain;
+      margin: 0 auto;
+      filter: drop-shadow(0 20px 28px rgba(70, 50, 30, .22));
+      animation: openEnvelopeAppear .8s ease both;
+    }
+
+    .letter-open .envelope-wrap {
+      display: none;
+    }
+
+    .letter-open .open-envelope-image {
+      display: block;
+    }
+
+    .letter-open .seal-hint {
+      display: none;
+    }
+
+    @keyframes openEnvelopeAppear {
+      from { opacity: 0; transform: translateY(22px) scale(.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .seal-hint {
+      margin: 13px 0 0;
+      font-family: Georgia, "Times New Roman", serif;
+      color: #49664f;
+      font-size: 14px;
+    }
+
+    .paper-view {
+      display: none;
+      width: min(90vw, 390px);
+      min-height: min(76svh, 690px);
+      margin: 0 auto;
+      position: relative;
+      background:
+        linear-gradient(rgba(255,255,255,.55), rgba(255,255,255,.55)),
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0 30px,
+          rgba(113, 102, 82, .11) 31px 32px
+        ),
+        #fffdf7;
+      border: 1px solid rgba(120, 102, 75, .20);
+      border-radius: 4px 7px 5px 6px;
+      box-shadow:
+        0 20px 40px rgba(55, 45, 30, .22),
+        0 2px 4px rgba(55, 45, 30, .10);
+      transform: rotate(-.35deg);
+      overflow: hidden;
+      animation: paperAppear .8s ease both;
+    }
+
+    /* Pequenas irregularidades dão aparência de papel de carta, sem usar imagem. */
+    .paper-view::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 12% 12%, rgba(120,100,70,.07) 0 1px, transparent 2px),
+        radial-gradient(circle at 82% 74%, rgba(120,100,70,.06) 0 1px, transparent 2px),
+        radial-gradient(circle at 34% 53%, rgba(120,100,70,.05) 0 1px, transparent 2px);
+      background-size: 90px 90px, 110px 110px, 75px 75px;
+    }
+
+    .paper-view::after {
+      content: "♡";
+      position: absolute;
+      top: 18px;
+      right: 24px;
+      color: rgba(126, 67, 73, .25);
+      font-family: Georgia, serif;
+      font-size: 28px;
+    }
+
+    .paper-text {
+      position: relative;
+      z-index: 2;
+      left: auto;
+      right: auto;
+      top: auto;
+      bottom: auto;
+      height: 100%;
+      max-height: 100%;
+      overflow-y: auto;
+      padding: 62px 30px 48px;
+      text-align: left;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-family: "Segoe Print", "Bradley Hand", "Comic Sans MS", cursive;
+      font-size: clamp(14px, 3.9vw, 18px);
+      line-height: 1.72;
+      color: #493b35;
+      scrollbar-width: thin;
+    }
+
+    .paper-signature {
+      margin-top: 18px;
+      text-align: right;
+    }
+
+    .letter-open .envelope-wrap {
+      display: none;
+    }
+
+    .letter-open .paper-view {
+      display: block;
+    }
+
+    @keyframes paperAppear {
+      from { opacity: 0; transform: translateY(35px) rotate(-.35deg) scale(.95); }
+      to { opacity: 1; transform: translateY(0) rotate(-.35deg) scale(1); }
+    }
+
+    .letter-open .envelope-wrap {
+      display: none;
+    }
+
+    .letter-open .paper-view {
+      display: block;
+    }
+
+    .back {
+      display: none;
+      margin: 16px auto 0;
+      min-width: 0;
+      font-size: 14px;
+      background: rgba(255,255,255,.86);
+      color: #68483b;
+      border: 1px solid rgba(110, 69, 48, .25);
+    }
+
+    @keyframes paperAppear {
+      from { opacity: 0; transform: translateY(35px) scale(.94); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .heart {
+      position: fixed;
+      pointer-events: none;
+      z-index: 8;
+      animation: floatUp 3.5s ease-out forwards;
+      font-size: 22px;
+    }
+
+    @keyframes floatUp {
+      from { transform: translateY(0) scale(.7); opacity: 0; }
+      15% { opacity: 1; }
+      to { transform: translateY(-100vh) rotate(18deg) scale(1.2); opacity: 0; }
+    }
+
+    @media (max-height: 650px) {
+      .card { padding-top: 14px; padding-bottom: 18px; }
+      .bear { width: 190px; max-height: 170px; }
+      h1 { font-size: 25px; }
+      .subtitle { margin-bottom: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="garden">
+    <span class="leaf l1"></span>
+    <span class="leaf l2"></span>
+    <span class="leaf l3"></span>
+    <span class="leaf l4"></span>
+  </div>
+
+  <main class="page" id="questionScreen">
+    <section class="card">
+      <img class="bear" src="ursinho-fofo-apaixonado.gif" alt="Ursinho segurando um coração">
+
+      <h1>Você aceita passar<br>o resto da sua vida comigo?</h1>
+      <p class="subtitle">Tenho uma coisinha especial para te contar... 💗</p>
+
+      <div class="buttons" id="buttons">
+        <button id="yes">Sim ❤️</button>
+        <button id="no">Não</button>
+      </div>
+
+      <div class="hint" id="hint"></div>
+    </section>
+  </main>
+
+  <section class="letter-screen" id="letterScreen">
+    <div class="letter-scene">
+      <div class="letter-title">Uma carta para você  ❤️</div>
+
+      <div class="envelope-wrap">
+        <div class="envelope" id="envelope" aria-label="Toque no selo para abrir a carta">
+          <div class="envelope-paper"></div>
+          <div class="envelope-flap"></div>
+
+          <div class="seal" id="seal" aria-label="Selo de cera"></div>
+          <div class="seal-half left"></div>
+          <div class="seal-half right"></div>
+        </div>
+
+        <div class="seal-hint">Toque no selo para quebrá-lo e abrir a carta </div>
+      </div>
+
+      <div class="paper-view">
+        <div class="paper-text" id="paperText"></div>
+      </div>
+
+      <button class="back" id="back">Voltar</button>
+    </div>
+  </section>
+
+  <script>
+    const yes = document.getElementById("yes");
+    const no = document.getElementById("no");
+    const buttons = document.getElementById("buttons");
+    const hint = document.getElementById("hint");
+    const questionScreen = document.getElementById("questionScreen");
+    const letterScreen = document.getElementById("letterScreen");
+    const envelope = document.getElementById("envelope");
+    const back = document.getElementById("back");
+
+    let noCount = 0;
+
+    function hearts() {
+      for (let i = 0; i < 16; i++) {
+        setTimeout(() => {
+          const h = document.createElement("div");
+          h.className = "heart";
+          h.textContent = ["❤️", "💗", "💕", "🌸"][Math.floor(Math.random() * 4)];
+          h.style.left = Math.random() * 100 + "vw";
+          h.style.bottom = "-30px";
+          h.style.animationDuration = (2.5 + Math.random() * 2) + "s";
+          document.body.appendChild(h);
+          setTimeout(() => h.remove(), 5000);
+        }, i * 80);
+      }
+    }
+
+    function moveNo() {
+      noCount++;
+
+      const maxX = Math.max(10, window.innerWidth - no.offsetWidth - 20);
+      const maxY = Math.max(10, window.innerHeight - no.offsetHeight - 20);
+
+      no.style.position = "fixed";
+      no.style.left = (10 + Math.random() * (maxX - 10)) + "px";
+      no.style.top = (10 + Math.random() * (maxY - 10)) + "px";
+
+      const messages = [
+        "Tem certeza? 🥺",
+        "O botão está fugindo... ",
+        "Tenta clicar no outro ",
+        "Não vale fugir! ",
+        "Acho que você quis dizer SIM... ",
+        "Ele continua fugindo! "
+      ];
+      hint.textContent = messages[Math.min(noCount - 1, messages.length - 1)];
+    }
+
+    no.addEventListener("click", moveNo);
+    no.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      moveNo();
+    }, { passive: false });
+
+    yes.addEventListener("click", () => {
+      hearts();
+      setTimeout(() => {
+        questionScreen.style.display = "none";
+        letterScreen.style.display = "flex";
+        window.scrollTo(0, 0);
+      }, 450);
+    });
+
+    const CARTA = `Uma pequena carta de amor para uma pessoa tão maravilosa e explendida quanto você meu amor❤️.
+
+
+Meu amor, eu gostaria de fazer um poema gigante de amor para você, mas eu não consigo descrever o quanto eu te amo, pois não dá para descrever algo tão inigualável quanto o fundo do oceano.
+
+Quanto mais eu continuo ao seu lado, mais eu descubro novas sensações, experiências e prazeres da vida. Nós não somos um casal perfeito, mas somos felizes de qualquer jeito.
+
+Eu queria poder morar com você para poder cuidar de você, fazer comida e poder ver o quão bonito e gentil é o seu sorriso. Eu queria poder descrever o seu sorriso, mas, se eu fosse descrever, daria muito mais de 100 mil palavras de tão bonito e perfeito que você é.
+
+Eu sei o quanto você se esforça, tanto no curso quanto na escola, na sua vida e também no nosso relacionamento. E eu admiro muito isso em você, além de tantas outras coisas.
+
+Com tudo isso, eu queria fazer uma pergunta para você, meu amor:
+
+Você deixaria eu fazer parte da sua vida e escrever uma história de amor com você, meu amor? ❤️
+
+Com carinho,
+Matheus, ou se prefirir Amor da sua Vida💗`;
+
+    document.getElementById("paperText").textContent = CARTA;
+
+    seal.addEventListener("click", (e) => {
+      e.stopPropagation();
+
+      if (envelope.classList.contains("opening")) return;
+
+      envelope.classList.add("opening");
+
+      setTimeout(() => {
+        letterScreen.classList.add("letter-open");
+        back.style.display = "block";
+        hearts();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }, 900);
+    });
+
+    envelope.addEventListener("click", () => {
+      if (!envelope.classList.contains("opening")) {
+        seal.click();
+      }
+    });
+
+    back.addEventListener("click", () => {
+      letterScreen.classList.remove("letter-open");
+      envelope.classList.remove("opening");
+      back.style.display = "none";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+
+  </script>
+</body>
+</html>
